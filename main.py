@@ -1,3 +1,5 @@
-from anomaly_detection.pipeline import load_data
+from anomaly_detection.detector import AnomalyDetector
 
-df = load_data("hh103.csv")
+detector = AnomalyDetector("hh103.csv") # create detector object
+results = detector.analyze(min_duration=60)         
+print(results['long_durations'])        

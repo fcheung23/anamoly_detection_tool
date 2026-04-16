@@ -15,3 +15,22 @@ def load_data(filepath):
     print(f"Loaded {len(df)} rows from {filepath}")
     print(df.head(5))
     return df
+
+def compute_durations(df):
+    # separate ON and OFF events
+    on_events = df[df['state'] == 1].reset_index(drop=True)
+    off_events = df[df['state'] == 0].reset_index(drop=True)
+    
+    # pair them together
+    pairs = pd.DataFrame({
+        'sensor': on_events['sensor'],
+        'on_time': on_events['timestamp'],
+        'off_time': off_events['timestamp'],
+    })
+    
+    # compute duration in seconds
+    pairs['duration_seconds'] = (pairs['off_time'] - pairs['on_time']).dt.total_seconds()
+    
+    print(f"Computed {len(pairs)} ON/OFF pairs")
+    print(pairs.head())
+    return pairs
