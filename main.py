@@ -1,5 +1,15 @@
 from anomaly_detection.detector import AnomalyDetector
 
-detector = AnomalyDetector("hh103.csv") # create detector object
-results = detector.analyze(min_duration=60)         
-print(results['long_durations'])        
+
+detector = AnomalyDetector("hh103.csv")
+
+results = detector.analyze()
+
+print("\n--- Duration summary ---")
+print(results["duration_summary"].head(10).to_string(index=False))
+
+print("\n--- Burst spikes ---")
+print(results["burst_spikes"].head(10).to_string(index=False))
+
+print("\n--- Idle gaps ---")
+print(results["idle_gaps"].head(10).to_string(index=False))
