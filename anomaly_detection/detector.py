@@ -24,7 +24,7 @@ def format_duration(seconds: float) -> str:
 
 DEFAULT_CONFIG = {
     "idle_gap": {
-        "threshold_seconds": 24 * 60 * 60,
+        "threshold_seconds": 12 * 60 * 60,
         "housewide_window_minutes": 1440,
         "housewide_sensor_ratio": 0.8,
         "return_sensor_ratio": 0.3,

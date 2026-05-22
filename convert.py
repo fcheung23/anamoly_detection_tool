@@ -1,7 +1,7 @@
 import pandas as pd
 
 df = pd.read_csv(
-    "weekendaway.csv",
+    "absentsensor.csv",
     sep='\t',
     header=None,
     names=['timestamp', 'sensor', 'state', 'extra'],
@@ -13,4 +13,4 @@ df['date'] = df['timestamp'].dt.strftime('%Y-%m-%d')
 df['time'] = df['timestamp'].dt.strftime('%H:%M:%S.%f')
 df['state'] = df['state'].str.strip()
 
-df[['date', 'time', 'sensor', 'state']].to_csv('weekendaway_fixed.csv', sep=' ', header=False, index=False)
+df[['date', 'time', 'sensor', 'state']].to_csv('absentsensor_fixed.csv', sep=' ', header=False, index=False)

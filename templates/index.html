@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Health Anomaly Detector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: #1a1a1a; background: #f5f5f0; min-height: 100vh; }
+        .nav { background: #2c2c2c; padding: 0 32px; display: flex; align-items: center; gap: 32px; height: 44px; }
+        .nav-brand { font-size: 14px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
+        .nav-links { display: flex; gap: 24px; list-style: none; }
+        .nav-links a { color: #bbb; text-decoration: none; font-size: 13px; transition: color 0.15s; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+        .nav-user { margin-left: auto; color: #bbb; font-size: 12px; }
+        .hero { background: #fff; border-bottom: 1px solid #ddd; padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; gap: 32px; } 
+        .hero-banner { display: flex; align-items: center; justify-content: center; flex-shrink: 0; } 
+        .hero-banner-image { width: 100%; max-width: 420px; height: auto; object-fit: contain; }
+        .main { max-width: 1100px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+        .form-section h2 { font-family: 'Source Serif 4', serif; font-size: 22px; font-weight: 600; margin-bottom: 20px; color: #1a1a1a; }
+        .field-group { margin-bottom: 18px; }
+        .field-group label { display: block; font-size: 13px; font-weight: 500; color: #333; margin-bottom: 5px; }
+        .field-group select, .field-group input[type="text"], .field-group input[type="number"], .field-group input[type="date"] { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Source Sans 3', sans-serif; font-size: 13px; color: #1a1a1a; background: #fff; outline: none; transition: border-color 0.15s; }
+        .field-group select:focus, .field-group input:focus { border-color: #7a2020; }
+        .field-group .hint { font-size: 11px; color: #888; margin-top: 4px; }
+        .upload-wrapper input[type="file"] { width: 100%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Source Sans 3', sans-serif; font-size: 13px; background: #fff; cursor: pointer; }
+        .section-divider { border: none; border-top: 1px solid #ddd; margin: 22px 0; }
+        .section-label { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .submit-btn { background: #7a2020; color: #fff; border: none; padding: 10px 24px; font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; border-radius: 3px; cursor: pointer; transition: background 0.15s; margin-top: 6px; }
+        .submit-btn:hover { background: #9a2828; }
+        .notes-panel { background: #fff; border: 1px solid #ddd; border-radius: 3px; padding: 20px; }
+        .notes-panel h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a; }
+        .notes-panel p { font-size: 13px; color: #444; line-height: 1.6; margin-bottom: 10px; }
+        .notes-panel p:last-child { margin-bottom: 0; }
+        .notes-panel strong { font-weight: 600; color: #1a1a1a; }
+        .notes-divider { border: none; border-top: 1px solid #eee; margin: 14px 0; }
+        .results-area { grid-column: 1 / -1; }
+        .results-area h2 { font-family: 'Source Serif 4', serif; font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #1a1a1a; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+        .result-block { background: #fff; border: 1px solid #ddd; border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+        .result-block-header { padding: 12px 18px; background: #f0eeea; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; }
+        .result-block-title { font-size: 13px; font-weight: 600; color: #333; }
+        .result-count { font-size: 11px; background: #2c2c2c; color: #fff; padding: 2px 8px; border-radius: 10px; }
+        .result-count.warn { background: #7a2020; }
+        table.result-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table.result-table th { text-align: left; padding: 9px 18px; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #ddd; background: #fafaf8; }
+        table.result-table td { padding: 10px 18px; border-bottom: 1px solid #f0eeea; color: #1a1a1a; vertical-align: top; }
+        table.result-table tr:last-child td { border-bottom: none; }
+        table.result-table tr:hover td { background: #fafaf8; }
+        .empty-note { padding: 18px; font-size: 13px; color: #888; font-style: italic; }
+        .sensor-tag { display: inline-block; background: #eef2f8; color: #2a4a7a; padding: 2px 7px; border-radius: 2px; font-size: 12px; font-weight: 500; }
+        .sensor-tag.warn { background: #fdf0ee; color: #7a2020; }
+        .footer { background: #2c2c2c; color: #888; text-align: center; padding: 14px; font-size: 12px; margin-top: 48px; }
+        .hidden-file-input { display: none; }
+        .custom-file-upload { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 50px; border: 2px dashed #c9c9c9; border-radius: 6px; background: #fafaf8; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+        .custom-file-upload:hover { border-color: #7a2020; background: #f7f3f3; }
+        .upload-title { font-size: 15px; font-weight: 600; color: #2c2c2c; margin-bottom: 6px; }
+        .upload-subtitle { font-size: 12px; color: #777; padding: 6px 0; display: flex; align-items: center; gap: 6px; margin-top: 8px; margin-left: 8px; }
+        .file-icon { width: 14px; height: 14px; color: #777; flex-shrink: 0; }
+        .upload-hint { font-size: 11px; color: #888; margin-top: 6px; margin-left: 2px; }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <span class="nav-brand">Sensor Health Anomaly Detector</span>
+    <ul class="nav-links">
+        <li><a href="/" class="active">Analyze Data</a></li>
+    </ul>
+    <span class="nav-user">v1.1.0</span>
+</nav>
+
+<div class="hero">
+    <div style="max-width: 480px;">
+        <h1 style="font-family: 'Source Serif 4', serif; font-size: 20px; font-weight: 600; margin-bottom: 6px;">
+            Sensor Health Analysis
+        </h1>
+
+        <p style="font-size: 13px; color: #555; line-height: 1.6;">
+            Upload a CASAS sensor log to detect individual sensor malfunctions through unexplained silences
+            and anomalous firing patterns across smart home deployments.
+        </p>
+    </div>
+
+    <div class="hero-banner">
+        <img src="{{ url_for('static', filename='header_final_rgb.png') }}"
+             alt="Sensor Anomaly Detector Banner"
+             class="hero-banner-image">
+    </div>
+</div>
+
+<div class="main">
+
+    <form action="/analyze" method="post" enctype="multipart/form-data" class="form-section">
+        <h2>Upload SmartHome Data</h2>
+
+        <div class="field-group">
+            <label for="file">Dataset File</label>
+            <div class="upload-wrapper">
+                <input type="file"
+                    name="file"
+                    id="file"
+                    accept=".csv"
+                    class="hidden-file-input">
+
+                <label for="file" class="custom-file-upload">
+                    <span class="upload-subtitle">
+                        <svg class="file-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>                        
+                        <span id="fileLabelText">CASAS-format.csv</span> 
+                    </span>
+                </label>
+            </div>
+            <div class="hint upload-hint">
+                Space-separated CASAS format: Date Time SensorName State
+            </div>            
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label">Detection Configuration</div>
+
+        <div class="config-grid">
+            <div class="field-group">
+                <label for="threshold_seconds">Silence Threshold (seconds)</label>
+                <input type="number" id="threshold_seconds" name="threshold_seconds"
+                    value="{{ user_config['idle_gap']['threshold_seconds'] if user_config else 108000 }}">
+                <div class="hint">Minimum gap to flag as a silence event</div>
+            </div>
+            <div class="field-group">
+                <label for="housewide_window_minutes">House-wide Window (minutes)</label>
+                <input type="number" id="housewide_window_minutes" name="housewide_window_minutes"
+                    value="{{ user_config['idle_gap']['housewide_window_minutes'] if user_config else 1440 }}">
+                <div class="hint">Window to group sensors going silent together</div>
+            </div>
+            <div class="field-group">
+                <label for="housewide_sensor_ratio">House-wide Sensor Ratio</label>
+                <input type="number" id="housewide_sensor_ratio" name="housewide_sensor_ratio"
+                    value="{{ user_config['idle_gap']['housewide_sensor_ratio'] if user_config else 0.8 }}">
+                <div class="hint">Fraction of sensors that must go silent (0–1)</div>
+            </div>
+            <div class="field-group">
+                <label for="return_window_minutes">Return Window (minutes)</label>
+                <input type="number" id="return_window_minutes" name="return_window_minutes"
+                    value="{{ user_config['idle_gap']['return_window_minutes'] if user_config else 60 }}">
+                <div class="hint">Window to detect when the house becomes active again</div>
+            </div>
+            <div class="field-group">
+                <label for="return_sensor_ratio">Return Sensor Ratio</label>
+                <input type="number" id="return_sensor_ratio" name="return_sensor_ratio"
+                    value="{{ user_config['idle_gap']['return_sensor_ratio'] if user_config else 0.3 }}">
+                <div class="hint">Fraction of sensors needed to confirm return (0–1)</div>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Run Analysis</button>
+    </form>
+
+    <div class="notes-panel">
+        <h3>Notes</h3>
+        <p><strong>Silence Threshold</strong> controls how long a sensor must be silent before it gets flagged. Adjust based on observations based on previous activity.</p>
+        <hr class="notes-divider">
+        <p><strong>House-wide Window</strong> and <strong>Sensor Ratio</strong> determine when a silence is classified as a home absence vs. an individual sensor malfunction. If most sensors go silent together, it is treated as an absence.</p>
+        <hr class="notes-divider">
+        <p><strong>Absent Firing</strong> flags sensors that continue firing during a detected home absence — these are the strongest indicators of a sensor malfunction or false trigger.</p>
+        <hr class="notes-divider">
+        <p>Data must be space-separated in the format:<br><strong>Date Time SensorName ON/OFF</strong></p>
+    </div>
+
+    {% if housewide is defined %}
+    <div class="results-area">
+        <h2>Analysis Results</h2>
+
+        <div class="result-block">
+            <div class="result-block-header">
+                <span class="result-block-title">Likely Home Absences</span>
+                <span class="result-count {{ 'warn' if housewide|length > 0 else '' }}">{{ housewide|length }} detected</span>
+            </div>
+            {% if housewide %}
+            <table class="result-table">
+                <thead><tr><th>Started At</th><th>Ended At</th><th>Sensors Affected</th><th>Duration</th></tr></thead>
+                <tbody>
+                    {% for row in housewide %}
+                    <tr>
+                        <td>{{ row.started_at }}</td>
+                        <td>{{ row.ended_at }}</td>
+                        <td>{{ row.sensors_affected }}</td>
+                        <td>{{ row.idle_time }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-note">No home absences detected.</div>
+            {% endif %}
+        </div>
+
+        <div class="result-block">
+            <div class="result-block-header">
+                <span class="result-block-title">Idle Gaps — Individual Sensors</span>
+                <span class="result-count {{ 'warn' if idle_gaps|length > 0 else '' }}">{{ idle_gaps|length }} detected</span>
+            </div>
+            {% if idle_gaps %}
+            <table class="result-table">
+                <thead><tr><th>Sensor</th><th>Silence Start</th><th>Silence End</th><th>Duration</th></tr></thead>
+                <tbody>
+                    {% for row in idle_gaps %}
+                    <tr>
+                        <td><span class="sensor-tag warn">{{ row.sensor }}</span></td>
+                        <td>{{ row.silence_start }}</td>
+                        <td>{{ row.silence_end }}</td>
+                        <td>{{ row.idle_time }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-note">No individual sensor gaps detected outside home absences.</div>
+            {% endif %}
+        </div>
+
+        <div class="result-block">
+            <div class="result-block-header">
+                <span class="result-block-title">Absent Firing During Home Absences</span>
+                <span class="result-count {{ 'warn' if absent|length > 0 else '' }}">{{ absent|length }} detected</span>
+            </div>
+            {% if absent %}
+            <table class="result-table">
+                <thead><tr><th>Sensor</th><th>Fire Count</th><th>Absence Start</th></tr></thead>
+                <tbody>
+                    {% for row in absent %}
+                    <tr>
+                        <td><span class="sensor-tag warn">{{ row.sensor }}</span></td>
+                        <td>{{ row.fires }}</td>
+                        <td>{{ row.silence_start }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-note">No absent firing detected during home absences.</div>
+            {% endif %}
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
+
+<div class="footer">
+    Sensor Health Anomaly Detector &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; Felix Cheung
+</div>
+
+</body>
+</html>
+
+<script>
+const fileInput = document.getElementById("file");
+const labelText = document.getElementById("fileLabelText");
+
+fileInput.addEventListener("change", () => {
+    if (fileInput.files.length > 0) {
+        labelText.textContent = fileInput.files[0].name;
+    } else {
+        labelText.textContent = "CASAS-format.csv";
+    }
+});
+</script>
